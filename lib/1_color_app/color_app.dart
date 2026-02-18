@@ -10,22 +10,36 @@ void main() {
 }
 
 class ColorService extends ChangeNotifier{
-  int redTapCount = 0;
-  int blueTapCount = 0;
+  final Map<CardType, int> _tapCounts = {
+    for(var type in CardType.values) type:0,
+  };
+
+  int getTapCount(CardType type) => _tapCounts[type] ?? 0;
 
   void increment(CardType type){
-    if(type == CardType.red){
-      redTapCount++;
-    } else {
-      blueTapCount++;
-    }
+    _tapCounts[type] = (_tapCounts[type] ?? 0) + 1;
     notifyListeners();
   }
 }
 
+enum CardType { red, blue, green, pink }
+
+const Map<CardType, Color> cardColors = {
+  CardType.red: Colors.red,
+  CardType.blue: Colors.blue,
+  CardType.green: Colors.green,
+  CardType.pink: Colors.pink,
+};
+
+const Map<CardType, String> cardLabels = {
+  CardType.red: 'Red',
+  CardType.blue: 'Blue',
+  CardType.green: 'Green',
+  CardType.pink: 'Pink',
+};
+
 final ColorService colorService = ColorService();
 
-enum CardType { red, blue }
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -67,13 +81,10 @@ class ColorTapsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Color Taps')),
-      body: Column(
-        children: [
-          ColorTap(type: CardType.red),
-          ColorTap(type: CardType.blue),
-        ],
-      )
-    );
+      body: ListView(
+          children: CardType.values.map((type) => ColorTap(type: type)).toList(),
+        )
+      );
   }
 }
 
@@ -85,20 +96,18 @@ class ColorTap extends StatelessWidget {
     required this.type,
   });
 
-  Color get backgroundColor => type == CardType.red ? Colors.red : Colors.blue;
-
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: colorService,
       builder: (context, _){
-        final count = type == CardType.red ? colorService.redTapCount : colorService.blueTapCount;
+        final count = colorService.getTapCount(type);
         return GestureDetector(
         onTap: () => colorService.increment(type),
         child: Container(
           margin: EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: backgroundColor,
+            color: cardColors[type],
             borderRadius: BorderRadius.circular(10),
           ),
           width: double.infinity,
@@ -127,19 +136,17 @@ class StatisticsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Statistics')),
       body: Center(
-        child: ListenableBuilder(listenable: colorService, builder: (context, _){
+        child: ListenableBuilder(
+        listenable: colorService, 
+        builder: (context, _){
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Red Taps: ${colorService.redTapCount}',
-                style: const TextStyle(fontSize:24),
-              ),
-              Text(
-                'Blue Taps: ${colorService.blueTapCount}',
-                style: const TextStyle(fontSize:24),
-              )
-            ],
+            children: CardType.values.map((type) {
+              return Text(
+                '${cardLabels[type]} Taps: ${colorService.getTapCount(type)}', 
+                style: TextStyle(fontSize:24),
+              );
+            }).toList(),
           );
         })
       ),
