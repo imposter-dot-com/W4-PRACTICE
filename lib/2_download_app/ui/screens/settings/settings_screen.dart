@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../providers/theme_color_provider.dart';
 import '../../theme/theme.dart';
@@ -7,11 +7,17 @@ import 'widget/theme_color_button.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
- 
+
   @override
   Widget build(BuildContext context) {
+    // we're using watch so that we "subscribe" to the theme provider, meaning when the state changes, it rebuilds
+    final themeProvider = context.watch<ThemeColorProvider>();
+
+    // this holds the current color enum 
+    final currentTheme = themeProvider.currentThemeColor;
+
     return Container(
-      color: currentThemeColor.backgroundColor,
+      color: currentTheme.backgroundColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -19,7 +25,7 @@ class SettingsScreen extends StatelessWidget {
           Text(
             "Settings",
             style: AppTextStyles.heading.copyWith(
-              color: currentThemeColor.color,
+              color: currentTheme.color,
             ),
           ),
 
@@ -38,8 +44,11 @@ class SettingsScreen extends StatelessWidget {
                 .map(
                   (theme) => ThemeColorButton(
                     themeColor: theme,
-                    isSelected: theme == currentThemeColor,
-                    onTap: (value) { },
+                    isSelected: theme == currentTheme,
+                    onTap: (value) {
+                      // using read here to tell the provider to change the theme on tap
+                      context.read<ThemeColorProvider>().setTheme(value);
+                    },
                   ),
                 )
                 .toList(),
@@ -49,4 +58,3 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 }
- 

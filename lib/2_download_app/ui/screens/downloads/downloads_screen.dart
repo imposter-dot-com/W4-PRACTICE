@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../providers/theme_color_provider.dart';
 import '../../theme/theme.dart';
 import 'widgets/download_controler.dart';
@@ -23,16 +24,20 @@ class DownloadsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: currentThemeColor.backgroundColor,
-      child: Column(
+    final currentTheme = context.watch<ThemeColorProvider>().currentThemeColor;
+
+    return Scaffold(
+      backgroundColor: currentTheme.backgroundColor,
+      body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(height: 16),
-          Text(
-            "Downloads",
-            style: AppTextStyles.heading.copyWith(
-              color: currentThemeColor.color,
+          Center(
+            child: Text(
+              "Downloads",
+              style: AppTextStyles.heading.copyWith(
+                color: currentTheme.color,
+              ),
             ),
           ),
 
