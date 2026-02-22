@@ -8,6 +8,8 @@ import 'ui/theme/theme.dart';
 
 void main() {
   runApp(
+    // inject theme color provider so that all child widget can access to it
+    // so we don't need to repeatedly create a seperate instance for each widget
     ChangeNotifierProvider(
       create: (_) => ThemeColorProvider(),
       child: const MyApp(),
